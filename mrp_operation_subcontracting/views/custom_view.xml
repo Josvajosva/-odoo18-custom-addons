@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="sale.menu_sale_quotations" model="ir.ui.menu">
+            <field name="active" eval="False"/>
+        </record>
+
+        <record id="view_purchase_order_inherit" model="ir.ui.view">
+            <field name="name">purchase.order.inherit</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form"/> 
+            <field name="arch" type="xml">
+                <xpath expr="//form/header/button[@id='draft_confirm']" position="attributes">
+                    <attribute name="class">btn-primary</attribute>
+                </xpath>
+                <xpath expr="//form/header/button[@name='action_rfq_send']" position="attributes">
+                    <attribute name="class">btn-secondary</attribute>
+                </xpath>
+                <xpath expr="//form/header/button[@name='action_create_invoice']" position="replace"/>
+                <xpath expr="//form/header/button[@name='action_create_invoice']" position="replace"/>
+                <xpath expr="//field[@name='order_line']" position="attributes">
+                    <attribute name="readonly">state != 'draft'</attribute>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/list/field[@name='name']" position="attributes">
+                    <attribute name="required">False</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- <record id="view_stock_picking_form_inherit" model="ir.ui.view">
+            <field name="name">stock.picking.form.inherit</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='move_ids_without_package']" position="attributes">
+                    <attribute name="readonly">state != 'draft'</attribute>
+                </xpath>
+            </field>
+        </record> -->
+
+        <record id="group_bom_engineer" model="res.groups">
+            <field name="name">BOM Engineer</field>
+        </record>
+
+        <record id="view_mrp_production_inherit" model="ir.ui.view">
+            <field name="name">mrp.production.inherit</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='button_mark_done']" position="replace">
+                    <button name="button_mark_done" type="object" string="MO Completed" 
+                            class="oe_highlight" data-hotkey="g" invisible="move_raw_ids or not show_produce_all" />
+                </xpath>
+                <xpath expr="(//button[@name='button_mark_done'])[2]" position="replace">
+                    <button name="button_mark_done" type="object" string="MO Completed" 
+                            class="oe_highlight" data-hotkey="g" invisible="not move_raw_ids or not show_produce_all" />
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_purchase_order_tree_inherit" model="ir.ui.view">
+            <field name="name">purchase.order.tree.inherit</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_view_tree"/> 
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='invoice_status']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                    <attribute name="column_invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='amount_total']" position="attributes">
+                    <attribute name="groups">base.group_system</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="purchase_request.purchase_request_form_action" model="ir.actions.act_window">
+            <field name="context">{}</field>
+        </record>
+
+        <record id="view_order_tree_hide_amt" model="ir.ui.view">
+            <field name="name">sale.order.tree.hide.amt</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='amount_total']" position="attributes">
+                    <attribute name="groups">base.group_system</attribute>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

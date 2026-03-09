@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_dealerwise_commission_wizard" model="ir.ui.view">
+        <field name="name">dealerwise.commission.wizard.form</field>
+        <field name="model">dealerwise.commission.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Dealerwise Commission Report">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="date_from" required="1"/>
+                            <field name="date_to" required="1"/>
+                        </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button string="Print" type="object" name="action_print_commission_report" class="btn-primary"/>
+                    <button string="View Report" type="object" name="action_view_report" class="btn-secondary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_dealerwise_commission_report_form" model="ir.ui.view">
+        <field name="name">dealerwise.commission.report.form</field>
+        <field name="model">dealerwise.commission.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Dealerwise Commission Report (Detailed)">
+                <header>
+                    <button name="action_print_commission_report" string="Download PDF" type="object" class="btn-primary"/>
+                    <button name="action_export_excel" string="Download Excel" type="object" class="btn-secondary"/>
+                    <button name="action_open_payment_report" string="Register Payment" type="object" class="btn-success"/>
+                </header>
+
+                <group>
+                    <field name="date_from" readonly="1"/>
+                    <field name="date_to" readonly="1"/>
+                </group>
+
+                <separator string="Dealer Summary"/>
+                <field name="line_ids" nolabel="1" readonly="1">
+                    <list editable="bottom">
+                        <field name="dealer_name"/>
+                        <field name="invoice_count"/>
+                        <field name="first_fund_commission"/>
+                        <field name="second_fund_commission"/>
+                        <field name="total_commission"/>
+                    </list>
+                </field>
+
+                <group string="Grand Totals">
+                    <field name="total_invoice_count" readonly="1"/>
+                    <field name="total_first_commission" readonly="1"/>
+                    <field name="total_second_commission" readonly="1"/>
+                    <field name="total_commission" readonly="1"/>
+                </group>
+
+            </form>
+        </field>
+    </record>
+
+    <record id="view_dealerwise_commission_payment_form" model="ir.ui.view">
+        <field name="name">dealerwise.commission.payment.form</field>
+        <field name="model">dealerwise.commission.payment.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Dealerwise Payment Register">
+                <sheet>
+                    <group>
+                        <field name="date_from" readonly="1"/>
+                        <field name="date_to" readonly="1"/>
+                    </group>
+
+                    <separator string="Dealer Payment Summary"/>
+                    <field name="line_ids" nolabel="1" readonly="0" create="false" delete="false">
+                        <list editable="bottom">
+                            <field name="dealer_name" readonly="1"/>
+                            <field name="invoice_count" readonly="1"/>
+                            <field name="total_commission" readonly="1"/>
+                            <field name="payment_date"/>
+                            <field name="payment_amount"/>
+                            <field name="balance" readonly="1"/>
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_dealerwise_commission_wizard" model="ir.actions.act_window">
+        <field name="name">Consolidated Commission Report</field>
+        <field name="res_model">dealerwise.commission.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="view_dealerwise_commission_wizard"/>
+    </record>
+
+    <menuitem id="menu_dealerwise_commission_report" 
+              name="Consolidated Commission Report" 
+              parent="menu_invoice_commission_report" 
+              action="action_dealerwise_commission_wizard" 
+              sequence="60"/>
+</odoo>

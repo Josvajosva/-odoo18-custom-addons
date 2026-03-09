@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Add exclusive_rule_evaluation checkbox to loyalty program form view -->
+    <record id="loyalty_program_view_form_inherit_exclusive" model="ir.ui.view">
+        <field name="name">loyalty.program.form.inherit.exclusive</field>
+        <field name="model">loyalty.program</field>
+        <field name="inherit_id" ref="loyalty.loyalty_program_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//span[.//field[@name='limit_usage']]" position="after">
+                <label for="exclusive_rule_evaluation" invisible="program_type in ('gift_card', 'ewallet')"/>
+                <span invisible="program_type in ('gift_card', 'ewallet')">
+                    <field name="exclusive_rule_evaluation" class="oe_inline"/>
+                    <span class="text-muted ms-1">Only apply highest priority rule</span>
+                </span>
+            </xpath>
+        </field>
+    </record>
+</odoo>

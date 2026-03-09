@@ -1,0 +1,128 @@
+<odoo>
+
+    <record id="mrp_workorder_operation_form_view" model="ir.ui.view">
+        <field name="name">mrp.workorder.operation.form.view</field>
+        <field name="model">mrp.routing.workcenter</field>
+        <field name="inherit_id" ref="mrp.mrp_routing_workcenter_form_view"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='time_cycle']" position="before">
+                <field name="employee_ratio" />
+            </xpath>
+            
+        </field>
+    </record>
+
+    <record id="view_mrp_workcenter_form_inherit" model="ir.ui.view">
+        <field name="name">mrp.workcenter.form.inherit</field>
+        <field name="model">mrp.workcenter</field>
+        <field name="inherit_id" ref="mrp.mrp_workcenter_view"/>
+        <field name="arch" type="xml">
+            
+            <xpath expr="//field[@name='code']" position="before">
+                <field name="similar_work_center" widget="many2many_tags"/>
+            </xpath>
+            <xpath expr="//group[@name='costing']" position="after">
+                <group string="Operations">
+                    <field name="employee_ids" widget="many2many_tags"/>
+                </group>
+            </xpath>
+        
+        </field>
+    </record>
+
+    <!-- <record id="view_mrp_workcenter_form" model="ir.ui.view">
+        <field name="name">work.center.form.inherit.similar.work.center</field>
+        <field name="model">mrp.workcenter</field> 
+        <field name="inherit_id" ref="mrp.mrp_workcenter_view"/> 
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='code']" position="before">
+                <field name="similar_work_center" widget="many2many_tags"/>
+            </xpath>
+        </field>
+    </record> -->
+
+    <record id="view_mrp_workorder_form" model="ir.ui.view">
+        <field name="name">mrp.workorder.form</field>
+        <field name="model">mrp.workorder</field>
+        <field name="inherit_id" ref="mrp.mrp_production_workorder_form_view_inherit"/>
+        <field name="arch" type="xml">
+            <!-- <xpath expr="//notebook/page[@name='time_tracking']/field[@name='time_ids']/tree/field[@name='user_id']" position="replace" /> -->
+            <xpath expr="//field[@name='duration']" position="before">
+                <field name="employee_ids" widget="many2many_tags" />
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_mrp_workcenter_tree" model="ir.ui.view">
+        <field name="name">mrp.workcenter.tree</field>
+        <field name="model">mrp.workcenter</field>
+        <field name="inherit_id" ref="mrp.mrp_workcenter_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='tag_ids']" position="after">
+                <field name="employee_ids" widget="many2many_tags" />
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_mrp_productivity_tree_inherit" model="ir.ui.view">
+        <field name="name">mrp.workcenter.productivity.tree.inherit</field>
+        <field name="model">mrp.workcenter.productivity</field>
+        <field name="inherit_id" ref="mrp.oee_tree_view"/>  
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='date_start']" position="before">
+                <field name="employee_ids" widget="many2many_tags" />
+            </xpath>
+            <xpath expr="//field[@name='employee_ids']" position="before">
+                <field name="mo_id" string="MO Reference"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_mrp_productivity_search" model="ir.ui.view">
+        <field name="name">mrp.workcenter.productivity.search</field>
+        <field name="model">mrp.workcenter.productivity</field>
+        <field name="inherit_id" ref="mrp.oee_search_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='productive']" position="after">
+                <filter string="Employee" name="employee_ids" domain="[('employee_ids', 'in', [])]" />
+                <filter string="Workcenter" name="workcenter_id" domain="[('workcenter_id', 'in', [])]"/>
+                <filter string="Date Start" name="date_start" domain="[('date_start', 'in', [])]" />
+                <filter string="Date End" name="date_end" domain="[('date_end', 'in', [])]" />
+            </xpath>
+            <xpath expr="//search" position="inside">
+                <field name="mo_id" string="MO Reference"/>
+                <field name="employee_ids" string="Employees"/>
+                <field name="workcenter_id" string="Workcenter"/>
+            </xpath>
+            <xpath expr="//group" position="inside">
+                <group expand="0" string="Group By">
+                    <filter string="Start Date" name="date_start" context="{'group_by': 'date_start'}"/>
+                    <filter string="End Date" name="date_end" context="{'group_by': 'date_end'}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+    
+    <menuitem id="menu_time_tracking_main"
+              name="Time Tracking"
+              parent="mrp.menu_mrp_root"
+              sequence="10"/>
+    
+    <record id="action_time_tracking" model="ir.actions.act_window">
+        <field name="name">Time Tracking</field>
+        <field name="res_model">mrp.workcenter.productivity</field>  
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p>
+                Use this menu to track manufacturing time for work orders.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_time_tracking"
+              name="WO Time Tracking"
+              parent="menu_time_tracking_main"
+              action="action_time_tracking"/>
+              
+</odoo>

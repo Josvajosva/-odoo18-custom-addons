@@ -1,0 +1,112 @@
+<odoo>
+
+    <record id="view_sale_order_status_tree" model="ir.ui.view">
+        <field name="name">sale.order.status.tree</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+                <list>
+                    <field name="name"/>
+                    <field name="create_date"/>
+                    <field name="partner_id"/>
+                    <field name="is_invoiced_custom" column_invisible="1" />
+                    <field name="client_order_ref"/>
+                    <field name="customer_preferred_date"/>
+                    <field name="customer_deadline_date"/>
+                    <field name="status_so"/>
+                    <button name="action_view_done_mrp_orders"
+                        type="object"
+                        string="View MOs"
+                        class="btn-primary"
+                        icon="fa-list"/>
+                    <button name="action_created_invoice"
+                        type="object"
+                        string="Move To Dispatch"
+                        class="btn-primary"
+                        invisible="status_so in ['yet_to_start', 'processing', 'partially_ready', 'invoiced']"/>
+                </list>
+        </field>
+    </record>
+
+    <record id="view_sale_order_kanban_dashboard" model="ir.ui.view">
+    <field name="name">sale.order.dashboard.kanban</field>
+    <field name="model">sale.order</field>
+    <field name="arch" type="xml">
+        <kanban class="o_kanban_dashboard o_emphasize_colors" create="0" group_create="false">
+            <field name="color"/>
+            <field name="processing_count"/>
+            <field name="yet_to_start_count"/>
+            <field name="partially_ready_count"/>
+            <field name="ready_count"/>
+            <field name="invoiced_count"/>
+            <field name="name"/>
+
+           <templates>
+            <t t-name="kanban-box">
+                <div t-attf-class="#{!selection_mode ? kanban_color(record.color.raw_value) : ''} card shadow-sm p-2">
+                    <div class="o_kanban_card_header mb-2">
+                        <div class="o_kanban_card_header_title">
+                            <div class="o_primary h5 text-center">
+<!--                                <field name="name"/>-->
+                                <h4>Sale Order Manufacturing Status</h4>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="container o_kanban_card_content">
+                        <div class="row">
+                            <div class="col-6 d-flex align-items-center justify-content-center">
+                                <button class="btn btn-secondary text-nowrap" name="action_yet_to_start_orders" type="object">
+                                    <i class="fa fa-hourglass-start me-1"/>
+                                    <t t-esc="record.yet_to_start_count.value"/> Yet to Start
+                                </button>
+                            </div>
+
+
+                            <div class="col-6">
+                                <button class="btn btn-info w-100 mb-2" name="action_processing_orders" type="object">
+                                    <i class="fa fa-cogs me-1"/>
+                                    <t t-esc="record.processing_count.value"/> Processing
+                                </button>
+                                <button class="btn btn-warning w-100 mb-2" name="action_partially_ready_orders" type="object">
+                                    <i class="fa fa-adjust me-1"/>
+                                    <t t-esc="record.partially_ready_count.value"/> Partially Ready
+                                </button>
+                                <button class="btn btn-success w-100" name="action_ready_orders" type="object">
+                                    <i class="fa fa-check-circle me-1"/>
+                                    <t t-esc="record.ready_count.value"/> Ready
+                                </button>
+                                <button class="btn btn-secondary w-100 mt-2" name="action_invoiced_orders" type="object">
+                                    <i class="fa fa-file-invoice-dollar me-1"/>
+                                    <t t-esc="record.invoiced_count.value"/> Dispatched
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </templates>
+
+        </kanban>
+    </field>
+</record>
+
+    <record id="action_sale_order_dashboard_kanban" model="ir.actions.act_window">
+        <field name="name">Sale Order Dashboard</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">kanban,list</field>
+        <field name="domain">[('name','=','Sale Order Dashboard')]</field>
+    </record>
+
+<!--    <menuitem id="menu_sale_order_status_root"-->
+<!--              name="Sale Order Status"-->
+<!--              parent=""-->
+<!--              sequence="10"/>-->
+
+    <menuitem id="menu_sale_order_dashboard"
+          name="Overview"
+          parent="mrp.menu_mrp_root"
+          action="action_sale_order_dashboard_kanban"
+          sequence="5"/>
+
+
+</odoo>

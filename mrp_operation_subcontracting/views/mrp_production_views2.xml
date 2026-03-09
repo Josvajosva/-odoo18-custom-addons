@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <record id="mrp_production_operation_subcontracting_form_view" model="ir.ui.view">
+            <field name="name">mrp.production.operation_subcontracting.form.inherited</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+            <field name="mode">primary</field>
+            <field name="priority">20</field>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='operations']/field[@name='workorder_ids']" position="attributes">
+                    <attribute name="context">{'tree_view_ref': 'mrp_operation_subcontracting.mrp_production_workorder_tree_view_w_purchase_order', 'default_product_uom_id': product_uom_id, 'from_manufacturing_order': True}</attribute>
+                </xpath>
+            </field>
+        </record>
+            <record id="mrp_production_form_view_inherit" model="ir.ui.view">
+                <field name="name">mrp.production.form.inherit</field>
+                <field name="model">mrp.production</field>
+                <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+                <field name="arch" type="xml">
+
+                     <xpath expr="//field[@name='user_id']" position="before">
+                        <field name="partner_id" readonly="state in ('confirmed', 'done')"/>
+                    </xpath>
+                    <xpath expr="//field[@name='user_id']" position="before">
+                        <field name="is_subcontract"/>
+                    </xpath>
+                     <xpath expr="//field[@name='partner_id']" position="after">
+                        <field name="source_location_start_id" readonly="1" force_save="1"/>
+                    </xpath>
+                </field>
+        </record>
+
+
+         <record id="mrp_config_settings_view_form" model="ir.ui.view">
+            <field name="name">mrp.config.settings.view.form</field>
+            <field name="model">res.config.settings</field>
+            <field name="inherit_id" ref="mrp.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//block[@name='process_operations_setting_container']" position="inside">
+                    <setting id="scrap_approval_required" string="Scrap Approval Required"
+                             help="Require approval for scrap operations before validation.">
+                        <field name="scrap_approval_required"/>
+                    </setting>
+                    <setting id="scrap_approvers" string="Scrap Approvers"
+                             help="Select the users who can approve scrap operations.">
+                        <field name="scrap_approvers" widget="many2many_tags"/>
+                    </setting>
+
+                     <setting id="email_trigger" string="Send An Email Required"
+                             help="Trigger Email After Completing All MOS Related To a Sale Order">
+                        <field name="email_trigger"/>
+                    </setting>
+                    <setting id="send_selected_users" string="Send An Email Only SelectedUsers"
+                             help="Only Send An Completed SO Related MO Selected Users Only" invisible="email_trigger != True">
+                        <field name="send_selected_users" placeholder="user1@example.com; user2@example.com;" invisible="email_trigger != True" />
+                    </setting>
+                </xpath>
+            </field>
+         </record>
+
+
+         <record id="mrp_production_tree_source" model="ir.ui.view">
+            <field name="name">mrp.production.tree.inherit</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_tree_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//tree/field[@name='origin']" position="replace"/>
+                <xpath expr="//tree/field[@name='name']" position="before">
+                    <field name="origin"/>
+                </xpath>
+            </field>
+        </record>
+
+
+<!--        <record id="mrp_production_action" model="ir.actions.act_window">-->
+<!--            <field name="context">-->
+<!--                {-->
+<!--                    'search_default_todo': True,-->
+<!--                    'default_company_id': allowed_company_ids[0],-->
+<!--                    'group_by': ['origin', 'state']-->
+<!--                }-->
+<!--            </field>-->
+<!--        </record>-->
+
+
+
+
+
+
+
+<!--    <-&#45;&#45;Sale Status-&ndash;&gt;-->
+<!--     <record id="view_sale_status_tree" model="ir.ui.view">-->
+<!--        <field name="name">sale.status.tree</field>-->
+<!--        <field name="model">sale.status</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <tree string="Sale Order Status">-->
+<!--                <field name="origin"/>-->
+<!--                <field name="state"/>-->
+<!--                <button name="action_view_related_mos" type="object" string="View MOs" class="btn-primary" icon="fa-eye"/>-->
+<!--            </tree>-->
+<!--        </field>-->
+<!--    </record>-->
+
+
+
+<!--    <record id="view_sale_status_form" model="ir.ui.view">-->
+<!--        <field name="name">sale.status.form</field>-->
+<!--        <field name="model">sale.status</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <form>-->
+<!--&lt;!&ndash;                <header>&ndash;&gt;-->
+<!--&lt;!&ndash;                    <button name="action_view_related_mos" type="object" string="View MOs" class="btn-primary"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                </header>&ndash;&gt;-->
+<!--                <sheet>-->
+<!--                    <group>-->
+<!--                        <field name="origin"/>-->
+<!--                        <field name="state"/>-->
+<!--                    </group>-->
+<!--                </sheet>-->
+<!--            </form>-->
+<!--        </field>-->
+<!--    </record>-->
+
+
+<!--    <record id="view_sale_status_search" model="ir.ui.view">-->
+<!--        <field name="name">sale.status.search</field>-->
+<!--        <field name="model">sale.status</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <search>-->
+<!--                <field name="origin" string="Sale Order Reference"/>-->
+<!--                <field name="state"/>-->
+<!--            </search>-->
+<!--        </field>-->
+<!--    </record>-->
+
+    <!-- Action -->
+<!--    <record id="action_sale_status" model="ir.actions.act_window">-->
+<!--        <field name="name">Sale Orders Status</field>-->
+<!--        <field name="res_model">sale.status</field>-->
+<!--        <field name="view_mode">tree,form</field>-->
+
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Menu Item &ndash;&gt;-->
+<!--    <menuitem id="menu_sale_status"-->
+<!--              name="Sale Orders Status"-->
+<!--              parent="mrp.menu_mrp_manufacturing"-->
+<!--              action="action_sale_status"-->
+<!--              sequence="50"/>-->
+
+    <record id="mrp_production_tree_inherit_status_so" model="ir.ui.view">
+        <field name="name">mrp.production.tree.inherit.status.so</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='state']" position="after">
+                <field name="status_so"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_sale_order_status" model="ir.actions.act_window">
+        <field name="name">Manufacturing Orders</field>
+        <field name="res_model">mrp.production</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="mrp.mrp_production_tree_view"/>
+        <field name="context">{'group_by': 'sale_order_id'}</field>
+    </record>
+
+    <menuitem id="menu_sale_order_status"
+              name="Sale Orders Status"
+              parent="mrp.menu_mrp_manufacturing"
+              action="action_sale_order_status"
+              sequence="50"/>
+
+
+
+    <record id="action_sale_order_to_invoice" model="ir.actions.act_window">
+        <field name="name">Sale Orders Invoicing</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('invoice_status', '=', 'to invoice')]</field>
+        <field name="context">{}</field>
+    </record>
+
+
+    <menuitem id="menu_manufacturing_orders"
+          name="Sale Order Invoices"
+          parent="mrp.menu_mrp_manufacturing"
+          action="action_sale_order_to_invoice"
+          sequence="60"/>
+
+
+<!--      <menuitem id="menu_mrp_dashboard"-->
+<!--          name="Overview"-->
+<!--          groups="base.group_no_one"-->
+<!--          parent="mrp.menu_mrp_root"-->
+<!--          sequence="5"/>-->
+
+            <menuitem
+        id="menu_mrp_dashboard"
+        groups="base.group_no_one"/>
+
+</odoo>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="product_label_layout_form_inherited" model="ir.ui.view">
+            <field name="name">product.label.layout.form</field>
+            <field name="model">product.label.layout</field>
+            <field name="inherit_id" ref="product.product_label_layout_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='print_format']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='custom_quantity']" position="after">
+                    <field name="cvm_formate" readonly="1" />
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

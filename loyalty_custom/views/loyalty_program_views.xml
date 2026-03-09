@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="loyalty_program_view_form_inherit_custom" model="ir.ui.view">
+        <field name="name">loyalty.program.view.form.inherit.custom</field>
+        <field name="model">loyalty.program</field>
+        <field name="inherit_id" ref="loyalty.loyalty_program_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group/group/label[@for='program_type']" position="before">
+                <field name="use_floor_points"/>
+                <field name="double_points_days"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

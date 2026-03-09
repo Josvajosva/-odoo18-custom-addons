@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <record id="mrp_production_operation_subcontracting_form_view" model="ir.ui.view">
+            <field name="name">mrp.production.operation_subcontracting.form.inherited</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+            <field name="mode">primary</field>
+            <field name="priority">20</field>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='operations']/field[@name='workorder_ids']" position="attributes">
+                    <attribute name="context">{'tree_view_ref': 'mrp_operation_subcontracting.mrp_production_workorder_tree_view_w_purchase_order', 'default_product_uom_id': product_uom_id, 'from_manufacturing_order': True}</attribute>
+                </xpath>
+            </field>
+        </record>
+            <record id="mrp_production_form_view_inherit" model="ir.ui.view">
+                <field name="name">mrp.production.form.inherit</field>
+                <field name="model">mrp.production</field>
+                <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+                <field name="arch" type="xml">
+
+                     <xpath expr="//field[@name='user_id']" position="before">
+                        <field name="partner_id" readonly="state in ('confirmed', 'done')"/>
+                    </xpath>
+                    <xpath expr="//field[@name='user_id']" position="before">
+                        <field name="is_subcontract"/>
+                    </xpath>
+                     <xpath expr="//field[@name='partner_id']" position="after">
+                        <field name="source_location_start_id" readonly="1" force_save="1"/>
+                    </xpath>
+                </field>
+        </record>
+
+
+         <record id="mrp_config_settings_view_form" model="ir.ui.view">
+            <field name="name">mrp.config.settings.view.form</field>
+            <field name="model">res.config.settings</field>
+            <field name="inherit_id" ref="mrp.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//block[@name='process_operations_setting_container']" position="inside">
+                    <setting id="scrap_approval_required" string="Scrap Approval Required"
+                             help="Require approval for scrap operations before validation.">
+                        <field name="scrap_approval_required"/>
+                    </setting>
+                    <setting id="scrap_approvers" string="Scrap Approvers"
+                             help="Select the users who can approve scrap operations.">
+                        <field name="scrap_approvers" widget="many2many_tags"/>
+                    </setting>
+
+                     <setting id="email_trigger" string="Send An Email Required"
+                             help="Trigger Email After Completing All MOS Related To a Sale Order">
+                        <field name="email_trigger"/>
+                    </setting>
+                    <setting id="send_selected_users" string="Send An Email Only SelectedUsers"
+                             help="Only Send An Completed SO Related MO Selected Users Only" invisible="email_trigger != True">
+                        <field name="send_selected_users" placeholder="user1@example.com; user2@example.com;" invisible="email_trigger != True" />
+                    </setting>
+                </xpath>
+            </field>
+         </record>
+
+
+         <record id="mrp_production_tree_source" model="ir.ui.view">
+            <field name="name">mrp.production.tree.inherit</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_tree_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//tree/field[@name='origin']" position="replace"/>
+                <xpath expr="//tree/field[@name='name']" position="before">
+                    <field name="origin"/>
+                </xpath>
+            </field>
+        </record>
+</odoo>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

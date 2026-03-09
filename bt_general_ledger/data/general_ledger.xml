@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="gl_voucher_no" model="account.report.column">
+        <field name="name">Voucher No</field>
+        <field name="expression_label">voucher_no</field>
+        <field name="figure_type">string</field>
+        <field name="sequence">150</field>
+        <field name="report_id" ref="account_reports.general_ledger_report"/>
+    </record>
+
+    <record id="gl_voucher_type" model="account.report.column">
+        <field name="name">Voucher Type</field>
+        <field name="expression_label">voucher_type</field>
+        <field name="figure_type">string</field>
+        <field name="sequence">151</field>
+        <field name="report_id" ref="account_reports.general_ledger_report"/>
+    </record>
+
+    <record id="gl_invoice_date" model="account.report.column">
+        <field name="name">Invoice Date</field>
+        <field name="expression_label">invoice_date</field>
+        <field name="figure_type">date</field>
+        <field name="sequence">152</field>
+        <field name="report_id" ref="account_reports.general_ledger_report"/>
+    </record>
+
+    <record id="gl_invoice_no" model="account.report.column">
+        <field name="name">Invoice No</field>
+        <field name="expression_label">invoice_no</field>
+        <field name="figure_type">string</field>
+        <field name="sequence">153</field>
+        <field name="report_id" ref="account_reports.general_ledger_report"/>
+    </record>
+
+    <record id="gl_payment_ref" model="account.report.column">
+        <field name="name">Payment Ref No</field>
+        <field name="expression_label">payment_ref</field>
+        <field name="figure_type">string</field>
+        <field name="sequence">154</field>
+        <field name="report_id" ref="account_reports.general_ledger_report"/>
+    </record>
+
+    <record id="gl_gstin" model="account.report.column">
+        <field name="name">GSTIN</field>
+        <field name="expression_label">gstin</field>
+        <field name="figure_type">string</field>
+        <field name="sequence">155</field>
+        <field name="report_id" ref="account_reports.general_ledger_report"/>
+    </record>
+
+</odoo>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="CvMartTitle" inherit_id="point_of_sale.index">
+        <xpath expr="//title" position="replace">
+            <title>CV Mart POS</title>
+        </xpath>
+    </template>
+
+    <template id="report_layout_inherited" inherit_id="web.report_layout">
+        <xpath expr="//title" position="replace">
+            <title>CvMart Report</title>
+        </xpath>
+    </template>
+
+
+    <record id="product_normal_form_view_inherited" model="ir.ui.view">
+        <field name="name">product.product.view.form.easy</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_normal_form_view"/>
+        <field name="priority">12</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='lst_price']" position="after">
+                <field name="compare_value" class="oe_inline" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}" />
+                ( Compare Price )
+            </xpath>
+        </field>
+    </record>
+
+
+    <record id="product_variant_easy_edit_view_inherited" model="ir.ui.view">
+        <field name="name">product.product.view.form.easy</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_variant_easy_edit_view"/>
+        <field name="priority">12</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='lst_price']" position="after">
+                <field name="compare_value" class="oe_inline" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}" />
+                ( Compare Price )
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_company_form_inherited" model="ir.ui.view">
+        <field name="name">res.company.form</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="priority">12</field>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@class='oe_title']" position="after">
+                <group>
+                    <group />
+                    <group>
+                        <field name="pos_image" widget="image"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

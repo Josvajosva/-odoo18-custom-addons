@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_pos_config_negative_billing" model="ir.ui.view">
+            <field name="name">pos.config.negative.billing</field>
+            <field name="model">pos.config</field>
+            <field name="inherit_id" ref="point_of_sale.pos_config_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//sheet/div[@class='row mt16 o_settings_container']" position="after">
+                    <div class="o_setting_box">
+                        <div class="o_setting_left_pane">
+                            <field name="hide_out_of_stock_products"/>
+                        </div>
+                        <div class="o_setting_right_pane">
+                            <label for="hide_out_of_stock_products"/>
+                            <div class="text-muted">
+                                When enabled, products with zero on-hand quantity won't appear in POS
+                            </div>
+                        </div>
+                    </div>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

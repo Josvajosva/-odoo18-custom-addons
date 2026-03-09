@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_mrp_bom_form_inherit" model="ir.ui.view">
+        <field name="name">mrp.bom.form.inherit</field>
+        <field name="model">mrp.bom</field>
+        <field name="inherit_id" ref="mrp.mrp_bom_form_view"/>
+        <field name="mode">extension</field>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook/page[@name='miscellaneous']" position="after">
+                <page string="Checklist" name="checklist">
+                    <field name="checklist_ids">
+                        <list editable="bottom">
+                            <field name="name"/>
+                            <field name="no_of_units"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+
+    <record id="view_picking_form_inherit" model="ir.ui.view">
+        <field name="name">view.picking.form.inherit</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page/field/list/field[@name='quantity']" position="after">
+                <button name="action_open_checklist" type="object" string="Checklist" class="btn-primary"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_stock_move_checklist_form" model="ir.ui.view">
+        <field name="name">stock.move.checklist.form</field>
+        <field name="model">stock.move</field>
+        <field name="arch" type="xml">
+            <form string="Checklist">
+                <sheet>
+                    <field name="checklist_ids" nolabel="1">
+                        <list editable="bottom">
+                            <field name="name"/>
+                            <field name="no_of_units"/>
+                            <field name="available"/>
+                            <field name="remarks"/>
+                        </list>
+                    </field>
+                    <footer>
+                        <button string="Save" type="object" name="action_save_checklist" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+</odoo>

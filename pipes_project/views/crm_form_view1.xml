@@ -1,0 +1,111 @@
+<odoo>
+
+    <record id="view_crm_lead_pipes_form_custom" model="ir.ui.view">
+        <field name="name">crm.lead.form.custom</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='lost_reason_id']" position="after">
+                <field name="farmer_type"/>
+                <field name="stage_name" invisible="1"/>
+                <field name="survey_number"/>
+                <field name="sub_division_no"/>
+            </xpath>
+            <xpath expr="//field[@name='farmer_type']" position="after">
+                <field name="layout_image_filename" invisible="1"/>
+                <field name="layout_image" widget="binary" filename="layout_image_filename"
+                       readonly="stage_name =='Approved by Block Officer'"
+                       invisible="stage_name != 'Layout Image &amp; Gps Image Upload' and stage_name != 'Approved by Block Officer'"/>
+
+                <field name="gps_image_filename" invisible="1"/>
+                <field name="gps_image" widget="binary" filename="gps_image_filename"
+                       readonly="stage_name =='Approved by Block Officer'"
+                       invisible="stage_name != 'Layout Image &amp; Gps Image Upload' and stage_name != 'Approved by Block Officer'"/>
+            </xpath>
+
+            <button name="action_sale_quotations_new" position="attributes">
+                <attribute name="invisible">stage_name != 'Approved by Block Officer'</attribute>
+            </button>
+            <xpath expr="//field[@name='farmer_type']" position="before">
+                <field name="gender"/>
+                <field name="caste"/>
+                <field name="father_name"/>
+                <field name="district"/>
+                <field name="village"/>
+                <field name="block"/>
+                <field name="department"/>
+                <field name="scheme"/>
+                <field name="applied_area"/>
+            </xpath>
+
+
+            <xpath expr="//field[@name='user_id']" position="before">
+                <field name="application_id"/>
+            </xpath>
+
+
+            <xpath expr="//field[@name='user_id']" position="after">
+                <field name="sales_manager_area_id"/>
+                <field name="allowed_manager_ids" invisible="1"/>
+                <field name="sales_manager_id"/>
+            </xpath>
+
+
+            <xpath expr="//field[@name='tag_ids']" position="after">
+                <field name="latitude"/>
+                <field name="longitude"/>
+                <field name="mi_type"/>
+                <field name="mi_area"/>
+                <field name="total_area"/>
+                <field name="crop_name"/>
+                <field name="spacing"/>
+                <field name="pro_rata_spacing"/>
+
+            </xpath>
+
+
+        </field>
+    </record>
+
+    <record id="view_sales_manager_form" model="ir.ui.view">
+        <field name="name">sales.manager.form</field>
+        <field name="model">sales.manager</field>
+        <field name="arch" type="xml">
+            <form>
+
+                <group>
+                    <field name="name"/>
+                    <field name="manager_ids" widget="many2many_tags"/>
+                </group>
+
+            </form>
+        </field>
+    </record>
+
+    <record id="view_sales_manager_tree" model="ir.ui.view">
+        <field name="name">sales.manager.tree</field>
+        <field name="model">sales.manager</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="manager_ids" widget="many2many_tags"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_sales_manager" model="ir.actions.act_window">
+        <field name="name">Area</field>
+        <field name="res_model">sales.manager</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem
+            id="crm_teamsale_manager_config"
+            name="Area "
+            parent="crm.crm_menu_config"
+            action="action_sales_manager"
+            sequence="5"/>
+
+
+</odoo>

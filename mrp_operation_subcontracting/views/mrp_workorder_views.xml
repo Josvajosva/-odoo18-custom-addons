@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="mrp_production_workorder_tree_view_w_purchase_order" model="ir.ui.view">
+        <field name="name">mrp.production.work.order.tree.view.with_purchase_order</field>
+        <field name="model">mrp.workorder</field>
+        <field name="inherit_id" ref="mrp.mrp_production_workorder_tree_view"/>
+        <field name="arch" type="xml">
+            <field name="state" position="after">
+                <field name="purchase_order_id"/>
+            </field>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="po_order_creator.ScanInputDialog">
+        <Dialog title="'Scan Invoice'" size="'md'" contentClass="'po_scan_dialog_content'" bodyClass="'p-2'">
+            <div class="mb-0">
+                <input t-ref="input"
+                       type="text"
+                       class="form-control"
+                       t-on-keydown="onKeydown"
+                       t-model="state.value"/>
+            </div>
+            <t t-set-slot="footer">
+                <button type="button" class="btn btn-secondary" t-on-click="props.close">Cancel</button>
+            </t>
+        </Dialog>
+    </t>
+</templates>

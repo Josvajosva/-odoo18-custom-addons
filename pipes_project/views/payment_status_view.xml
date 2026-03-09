@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_fund_payment_status_tree" model="ir.ui.view">
+        <field name="name">fund.payment.status.tree</field>
+        <field name="model">account.move</field>
+        <field name="arch" type="xml">
+            <list string="Fund Payment Status" editable="bottom">
+                <field name="company_id" invisible="1" optional="hide"/>
+                <field name="name" string="Invoice" readonly="1"/>
+                <field name="partner_id" string="Customer" readonly="1"/>
+                <field name="dealer_id" string="Dealer" readonly="1"/>
+                <field name="first_fund" string="First Fund" readonly="1"/>
+                <field name="first_fund_payment_status" string="First Fund Status"/>
+                <field name="second_fund" string="Second Fund" readonly="1"/>
+                <field name="second_fund_payment_status" string="Second Fund Status"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_fund_payment_status" model="ir.actions.act_window">
+        <field name="name">Dealer Commission Payment Status</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_fund_payment_status_tree"/>
+        <field name="domain">[('move_type','=','out_invoice')]</field>
+        <field name="context">{'create': False}</field>
+    </record>
+
+    <menuitem id="menu_fund_payment_status"
+              name="Fund Payment Status"
+              parent="account.menu_finance"
+              action="action_fund_payment_status"
+              sequence="20"/>
+
+</odoo>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="mrp_workcenter_view_" model="ir.ui.view">
+            <field name="name">mrp.workcenter.form_inherit</field>
+            <field name="model">mrp.workcenter</field>
+            <field name="inherit_id" ref="mrp.mrp_workcenter_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='name']" position="after">
+                    <field name="is_subcontract"/>
+                    <field name="partner_id"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
+
+
+
+<!--    <field name="partner_id" -->
+<!--                        attrs="{'invisible': [('is_subcontract', '=', False)], -->
+<!--                            'required':  [('is_subcontract', '=', True)]}"/>-->

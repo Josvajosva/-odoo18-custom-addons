@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_customer_swaporder,customer.swaporder,model_customer_swaporder,mrp.group_mrp_user,1,1,1,1
+access_mrp_bom_checklist,mrp.bom.checklist,model_mrp_bom_checklist,mrp.group_mrp_user,1,1,1,1
+access_stock_move_checklist,stock.move.checklist,model_stock_move_checklist,mrp.group_mrp_user,1,1,1,1
+
+

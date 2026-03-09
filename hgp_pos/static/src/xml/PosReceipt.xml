@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<templates id="template" xml:space="preserve">
+
+    <!-- Custom Logo Change: Replaces the Odoo logo with cvmart logo in the POS Navbar -->
+    <t t-name="Chrome" t-inherit="point_of_sale.Navbar" t-inherit-mode="extension" owl="1">
+        <xpath expr="//div[hasclass('pos-centerheader d-flex justify-content-center overflow-hidden')]"  position="replace">
+            <!-- Logo image with click event -->
+            <img class="pos-logo pos-logo mw-100" height="42" t-on-click="() => debug.toggleWidget()" src="/hgp_pos/static/img/logo.png" alt="Logo"/>
+        </xpath>
+    </t>
+
+    <!-- Custom Order Receipt Template -->
+    <t t-name="hgp_pos.OrderReceipt">
+        <div class="pos-receipt p-2">
+
+            <!-- Show Tax Group Labels Condition -->
+            <t t-set="showTaxGroupLabels" t-value="doesAnyOrderlineHaveTaxLabel()"/>
+
+            <!-- Receipt Header Component -->
+            <ReceiptHeader data="props.data.headerData"/>
+
+            <!-- To and Date Section -->
+            <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                <div style="font-size: 10pt;">
+                    To
+                    <t t-foreach="props.data.paymentlines" t-as="line" t-key="line_index">
+                        <t t-esc="line.name"/>,
+                    </t>
+                </div>
+                <div style="font-size: 10pt;">
+                    Date: <span id="order-date" t-esc="props.data.date"/>
+                </div>
+            </div>
+
+            <!-- Order Name Section with Dotted Bottom Border -->
+            <div style  ="margin-top:5px;text-align:center;font-size:10pt;border-bottom: 1px dotted #000;">
+                <t t-esc="props.data.name"/>
+            </div>
+
+            <!-- Product List Section -->
+            <div style="width: 100%;border-bottom: 1px dotted #000;">
+                <div style="margin-top: 2px; display: flex; justify-content: space-between; font-weight: bold; font-size: 10pt; width: 100%; border-bottom: 1px dotted #000; border-top: 1px dotted dotted #000;padding-bottom: 10px;padding-top: 5px">
+                    <div style="flex: 5; text-align: left;">Product Name</div>
+                    <div style="flex: 2; text-align: center;">MRP</div>
+                    <div style="flex: 2; text-align: center;">RATE</div>
+                    <div style="flex: 2; text-align: center;">QTY</div>
+                    <div style="flex: 2; text-align: center;">AMT</div>
+                </div>
+
+                <t t-set="item" t-value="0" />
+                <t t-set="qty" t-value="0" />
+                <t t-set="mrp" t-value="0" />
+                <!-- Loop through orderlines and display product details -->
+                <t t-foreach="props.data.orderlines" t-as="product" t-key="line_index">
+                    <div style="margin-top:4px;display:flex;justify-content: space-between;font-size:9pt">
+                        <div style="flex:5">
+                            <t t-esc="product.productName"/>
+                        </div>
+                        <div style="flex:2;text-align:center">
+                            <t t-if="product.compare_value > 0">
+                                <t t-esc="product.c_value"/>
+                            </t>
+                            <t t-else="">
+                                <t t-esc="product.price"/>
+                            </t>
+                        </div>
+                        <div  style="flex:2;text-align:center">
+                            <t t-esc="product.price"/>
+                        </div>
+                        <div style="flex:2;text-align:center">
+                            <t t-esc="product.qty"/>
+                        </div>
+                        <div style="flex:2;text-align:center">
+                            <t t-esc="product.price"/>
+                        </div>
+                    </div>
+                    <t t-set="item" t-value="item+1" />
+                    <t t-set="qty" t-value="qty + formatToInt(product.qty)"/>
+                    <t t-set="mrp" t-value="mrp + formatToInt(product.compare_value)" />
+                </t>
+            </div>
+
+            <!-- Total Item Count, Quantity and Amount -->
+            <div style="margin-top:2px;display:flex;justify-content: space-between; font-weight:bold;border-bottom: 1px dotted #000;padding-bottom: 2px">
+                <span>Item <t t-esc="item"/></span>
+                <span>QTY <t t-esc="qty"/></span>
+                <span style="font-size:13pt"><t t-esc="props.formatCurrency(props.data.total_paid)"/></span>
+            </div>
+
+            <!-- Cash Tendered Section -->
+            <div style="margin-top:5px;display:flex;justify-content: space-between;font-weight:bold;">
+                <t t-set="t_amount" t-value="0" />
+                <t t-foreach="props.data.paymentlines" t-as="pl" t-key="line_index">
+                    <div>
+                        <t t-set="t_amount" t-value="t_amount+pl.amount" />
+                    </div>
+                </t>
+                <div style="flex:6">Cash Tendered</div>
+                <div style="flex:3">
+                    <t t-esc="props.formatCurrency(t_amount)"/>
+                </div>
+                <div style="flex:1" />
+            </div>
+
+            <!-- Cash Returned Section -->
+            <div style="margin-top:5px;display:flex;justify-content: space-between;font-weight:bold;">
+                <div style="flex:6">Cash Returned</div>
+                <div style="flex:3">
+                    <span t-esc="props.formatCurrency(props.data.change)"/>
+                </div>
+                <div style="flex:1" />
+            </div>
+            <!-- Today Savings Section -->
+            <div style="margin-top:2px;font-weight:bold;border-top: 1px dotted #000;padding-top: 4px">
+                    Today Savings : <span t-esc="props.formatCurrency(mrp - props.data.total_paid)"/>
+            </div>
+
+            <!-- Footer Section with Contact Information -->
+            <div style="margin-top:3px;font-size:9pt;text-align:center;border-top: 1px dotted #000;;padding-top: 4px">
+                JoeTech Image Creations <br/>
+                Contact : teratinsoft@gmail.com
+            </div>
+        </div>
+    </t>
+
+
+    <!-- Custom Logo for Receipt Header -->
+    <t t-name="hgp_pos.ReceiptHeader" t-inherit="point_of_sale.ReceiptHeader" t-inherit-mode="extension">
+        <xpath expr="//img[@class='pos-receipt-logo']" position="replace">
+            <img t-attf-src="/web/image?model=res.company&amp;id={{props.data.company.id}}&amp;field=pos_image" alt="Logo" class="pos-receipt-logo"/>
+        </xpath>
+        <xpath expr="//div[@class='pos-receipt-contact']" position="before">
+            <div style="font-size: 13pt;font-weight: bold;text-align: center"><t t-esc="props.data.company.name" /></div>
+        </xpath>
+    </t>
+
+</templates>

@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="dealer_commission_report_template">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <style>
+                        .report-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            font-size: 11px;
+                            margin-top: 20px;
+                        }
+                        .report-table th,
+                        .report-table td {
+                            border: 1px solid #000000 !important;
+                            padding: 6px 5px;
+                            text-align: center;
+                            vertical-align: middle;
+                        }
+                        .report-table th {
+                            background-color: #f2f2f2;
+                            font-weight: bold;
+                        }
+                        .report-table .text-left {
+                            text-align: left;
+                        }
+                        .report-table .text-right {
+                            text-align: right;
+                        }
+                        .report-table .total-row td {
+                            font-weight: bold;
+                            border-top: 2px solid #000 !important;
+                        }
+                        h2 {
+                            margin-bottom: 15px;
+                            text-align: center;
+                        }
+                        .report-header {
+                            margin-bottom: 20px;
+                        }
+                    </style>
+
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <h2><strong>DEALER COMMISSION REPORT</strong></h2>
+                        </div>
+                    </div>
+
+                    <div class="row report-header">
+                        <div class="col-12">
+                            <p><strong>Dealer Name:</strong> <span t-esc="docs.dealer_id.name"/></p>
+                            <p><strong>Duration:</strong> <span t-esc="docs.date_from"/> to <span t-esc="docs.date_to"/></p>
+                        </div>
+                    </div>
+
+                    <t t-set="dealer_invoices" t-value="docs.get_filtered_invoices()"/>
+
+                    <div class="row" t-if="dealer_invoices">
+                        <div class="col-12">
+                            <table class="report-table">
+                                <thead>
+                                    <tr>
+                                        <th>Application ID</th>
+                                        <th>Farmer Name</th>
+                                        <th>Material Value</th>
+                                        <th>Commission Amount</th>
+                                        <th>First Fund Commission</th>
+                                        <th>First Fund UTR Date</th>
+                                        <th>Second Fund Commission</th>
+                                        <th>Second Fund UTR Date</th>
+                                        <th>Current Status</th>
+                                    </tr>
+                                </thead>
+                                
+                                <tbody>
+                                    <t t-set="total_material" t-value="0"/>
+                                    <t t-set="total_commission" t-value="0"/>
+                                    <t t-set="total_first_fund" t-value="0"/>
+                                    <t t-set="total_second_fund" t-value="0"/>
+                                    <t t-set="total_final_fund" t-value="0"/>
+                                    
+                                    <t t-foreach="dealer_invoices" t-as="inv">
+                                        <t t-set="total_material" t-value="total_material + inv.amount_total"/>
+                                        <t t-set="total_commission" t-value="total_commission + inv.commission"/>
+                                        
+                                        <t t-set="show_first_fund" 
+                                           t-value="inv.first_fund_utr_skipped_date and (inv.first_fund_utr_skipped_date &gt;= docs.date_from and inv.first_fund_utr_skipped_date &lt;= docs.date_to)"/>
+                                        <t t-set="first_fund_value" 
+                                           t-value="inv.first_fund_utr_commission if show_first_fund else 0"/>
+                                        <t t-set="total_first_fund" t-value="total_first_fund + first_fund_value"/>
+                                        
+                                        <t t-set="show_second_fund" 
+                                           t-value="inv.fund_credit_date and (inv.fund_credit_date &gt;= docs.date_from and inv.fund_credit_date &lt;= docs.date_to)"/>
+                                        <t t-set="second_fund_value" 
+                                           t-value="inv.second_fund_utr_commission if show_second_fund else 0"/>
+                                        <t t-set="total_second_fund" t-value="total_second_fund + second_fund_value"/>
+                                        
+                                        <t t-set="final_fund_value" t-value="total_first_fund + total_second_fund"/>
+                                        <t t-set="total_final_fund" t-value="total_final_fund + final_fund_value"/>
+                                        
+                                        <tr>
+                                            <td class="text-left"><span t-esc="inv.application_id"/></td>
+                                            <td class="text-left"><span t-esc="inv.partner_id.name"/></td>
+                                            <td class="text-right">
+                                                <span t-esc="'{:,.2f}'.format(inv.amount_total)"/>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-esc="'{:,.2f}'.format(inv.commission)"/>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-esc="'{:,.2f}'.format(first_fund_value)"/>
+                                            </td>
+                                            <td>
+                                                <t t-if="show_first_fund">
+                                                    <span t-esc="inv.first_fund_utr_skipped_date"/>
+                                                </t>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-esc="'{:,.2f}'.format(second_fund_value)"/>
+                                            </td>
+                                            <td>
+                                                <t t-if="show_second_fund">
+                                                    <span t-esc="inv.fund_credit_date"/>
+                                                </t>
+                                            </td>
+                                            <td class="text-left"><span t-esc="docs.get_work_status_label(inv.work_status)"/></td>
+                                        </tr>
+                                    </t>
+                                    
+                                    <tr class="total-row">
+                                        <td colspan="2"><strong>Total</strong></td>
+                                        <td class="text-right">
+                                            <strong><span t-esc="'{:,.2f}'.format(total_material)"/></strong>
+                                        </td>
+                                        <td class="text-right">
+                                            <strong><span t-esc="'{:,.2f}'.format(total_commission)"/></strong>
+                                        </td>
+                                        <td class="text-right">
+                                            <strong><span t-esc="'{:,.2f}'.format(total_first_fund)"/></strong>
+                                        </td>
+                                        <td></td>
+                                        <td class="text-right">
+                                            <strong><span t-esc="'{:,.2f}'.format(total_second_fund)"/></strong>
+                                        </td>
+                                        <td></td>
+                                        <td class="text-right">
+                                            <strong><span t-esc="'{:,.2f}'.format(total_commission - (total_first_fund + total_second_fund))"/></strong>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="row" t-if="not dealer_invoices">
+                        <div class="col-12">
+                            <p><strong>No invoices found for this dealer in the given duration.</strong></p>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <record id="dealer_commission_report_action" model="ir.actions.report">
+        <field name="name">Dealer Commission Report</field>
+        <field name="model">dealer.commission.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">pipes_project.dealer_commission_report_template</field>
+        <field name="print_report_name">'dealer_commission_report'</field>
+        <field name="binding_model_id" ref="model_dealer_commission_wizard"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

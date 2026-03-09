@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+     <record id="stock_scrap_form_view_inherit" model="ir.ui.view">
+            <field name="name">stock.scrap.form.inherit</field>
+            <field name="model">stock.scrap</field>
+            <field name="inherit_id" ref="stock.stock_scrap_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='state'][@widget='statusbar']" position="replace">
+                    <field name="state" widget="statusbar" statusbar_visible="draft,ready,done"/>
+                </xpath>
+
+                <xpath expr="//header" position="inside">
+                    <button name="action_approve" string="Approve" type="object" class="oe_highlight"
+                       invisible="state == 'done'"/>
+                </xpath>
+            </field>
+        </record>
+</odoo>

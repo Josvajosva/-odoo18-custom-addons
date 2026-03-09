@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_dealer_statement_report" 
+              name="Dealer Statement Report" 
+              parent="account.account_reports_management_menu" 
+              action="action_dealer_statement_report_wizard" 
+              sequence="10"
+              groups="account.group_account_readonly,account.group_account_invoice"/>
+</odoo>

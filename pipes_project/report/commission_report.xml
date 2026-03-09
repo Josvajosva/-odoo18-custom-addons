@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_commission_template">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <h2><strong>INVOICE COMMISSION REPORT</strong></h2>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4" t-if="docs">
+                        <t t-set="commission_amt_8" t-value="sum(docs[0].commission_history_ids.filtered(lambda h: h.rule_percentage == 8 and h.system_type == 'inline' and h.rule_type=='commission').mapped('commission'))"/>
+                        <t t-set="commission_amt_12" t-value="sum(docs[0].commission_history_ids.filtered(lambda h: h.rule_percentage == 12 and h.system_type == 'inline' and h.rule_type=='commission').mapped('commission'))"/>
+                        <t t-set="on_commission_amt_8" t-value="sum(docs[0].commission_history_ids.filtered(lambda h: h.rule_percentage == 6.4 and h.system_type == 'online' and h.rule_max_days == 21 and h.rule_type=='commission').mapped('commission'))"/>
+                        <t t-set="on_commission_amt1_8" t-value="sum(docs[0].commission_history_ids.filtered(lambda h: h.rule_percentage == 9.6 and h.system_type == 'online' and h.rule_max_days == 45 and h.rule_type=='commission').mapped('commission'))"/>
+                        <t t-set="commission_amt_20" t-value="commission_amt_8 + commission_amt_12"/>
+                        <t t-set="commission_amt_16" t-value="on_commission_amt_8 + on_commission_amt1_8"/>
+                        <t t-set="deduction_per_45" t-value="sum(docs[0].commission_history_ids.filtered(lambda h: h.rule_max_days == 45 and h.system_type == 'inline' and h.rule_type=='deduction').mapped('rule_percentage'))"/>
+                        <t t-set="deduction_amt_45" t-value="sum(docs[0].commission_history_ids.filtered(lambda h: h.rule_max_days == 45 and h.system_type == 'inline' and h.rule_type=='deduction').mapped('deduction'))"/>
+                        <t t-set="deduction_per_60" t-value="sum(docs[0].commission_history_ids.filtered(lambda h: h.rule_max_days == 60 and h.system_type == 'inline' and h.rule_type=='deduction').mapped('rule_percentage'))"/>
+                        <t t-set="deduction_amt_60" t-value="sum(docs[0].commission_history_ids.filtered(lambda h: h.rule_max_days == 60 and h.system_type == 'inline' and h.rule_type=='deduction').mapped('deduction'))"/>
+                        <t t-set="deduction_per_120" t-value="sum(docs[0].commission_history_ids.filtered(lambda h: h.rule_max_days == 120 and h.system_type == 'inline' and h.rule_type=='deduction').mapped('rule_percentage'))"/>
+                        <t t-set="deduction_amt_120" t-value="sum(docs[0].commission_history_ids.filtered(lambda h: h.rule_max_days == 120 and h.system_type == 'inline' and h.rule_type=='deduction').mapped('deduction'))"/>
+                        <t t-set="payable_amt" t-value="commission_amt_20 - (deduction_amt_45+deduction_amt_60+deduction_amt_120)"/>
+                        <t t-set="deduction_per_21_on" t-value="sum(docs[0].commission_history_ids.filtered(lambda h: h.rule_max_days == 21 and h.system_type == 'online' and h.rule_type=='deduction').mapped('rule_percentage'))"/>
+                        <t t-set="deduction_amt_21_on" t-value="sum(docs[0].commission_history_ids.filtered(lambda h: h.rule_max_days == 21 and h.system_type == 'online' and h.rule_type=='deduction').mapped('deduction'))"/>
+                        <t t-set="deduction_per_45_on" t-value="sum(docs[0].commission_history_ids.filtered(lambda h: h.rule_max_days == 45 and h.system_type == 'online' and h.rule_type=='deduction').mapped('rule_percentage'))"/>
+                        <t t-set="deduction_amt_45_on" t-value="sum(docs[0].commission_history_ids.filtered(lambda h: h.rule_max_days == 45 and h.system_type == 'online' and h.rule_type=='deduction').mapped('deduction'))"/>
+                        <t t-set="deduction_per_60_on" t-value="sum(docs[0].commission_history_ids.filtered(lambda h: h.rule_max_days == 60 and h.system_type == 'online' and h.rule_type=='deduction').mapped('rule_percentage'))"/>
+                        <t t-set="deduction_amt_60_on" t-value="sum(docs[0].commission_history_ids.filtered(lambda h: h.rule_max_days == 60 and h.system_type == 'online' and h.rule_type=='deduction').mapped('deduction'))"/>
+                        <t t-set="payable_amt1" t-value="commission_amt_16 - (deduction_amt_21_on+deduction_amt_45_on+deduction_amt_60_on)"/>
+                        
+                        
+                        <div class="col-12">
+                            <p><strong>Customer:</strong> 
+                                <span t-esc="partner_id.name"/>
+                            </p>
+                            <p><strong>Application ID:</strong> 
+                                <span t-esc="docs[0].application_id if docs and docs[0].application_id else 'N/A'"/>
+                            </p>
+                            <div t-if="docs[0].system_type=='inline'">
+                                <p><strong>Payable Amount:</strong> 
+                                    <span t-esc="'{:,.2f}'.format(payable_amt)"/>
+                                </p>
+                            </div>
+                            <div t-if="docs[0].system_type=='online'">
+                                <p><strong>Payable Amount:</strong> 
+                                    <span t-esc="'{:,.2f}'.format(payable_amt1)"/>
+                                </p>
+                            </div>
+                            <p><strong>System Type:</strong> 
+                                <span t-esc="'Inline System' if (docs[0].system_type=='inline') else 'Online System'"/>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4" t-if="docs[0].system_type=='inline'">
+                        <div class="col-12">
+                            <table class="table table-bordered" style="width: 100%; border-collapse: collapse; border: 2px solid; margin: 0 auto;">
+                                <thead>
+                                    <tr style="border: 2px solid;">
+                                        <th style="border: 2px solid; padding: 8px; text-align: center; font-weight: bold;">Total Material Value</th>
+                                        <th style="border: 2px solid; padding: 8px; text-align: center; font-weight: bold;">Commission Amount</th>
+                                        <th style="border: 2px solid; padding: 8px; text-align: center; font-weight: bold;">First Commission Amount</th>
+                                        <th style="border: 2px solid; padding: 8px; text-align: center; font-weight: bold;">Second Commission</th>
+                                    </tr>
+                                    <tr style="border: 2px solid;">
+                                        <th style="border: 2px solid; padding: 8px; text-align: center;"></th>
+                                        <th style="border: 2px solid; padding: 8px; text-align: center;">20%</th>
+                                        <th style="border: 2px solid; padding: 8px; text-align: center;">8%</th>
+                                        <th style="border: 2px solid; padding: 8px; text-align: center;">12%</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr style="border: 2px solid;">
+                                        <td style="border: 2px solid; padding: 8px; text-align: center;">
+                                            <span t-esc="'{:,.2f}'.format(sum(invoice.amount_untaxed for invoice in docs))"/>
+                                        </td>
+                                        <td style="border: 2px solid; padding: 8px; text-align: center;">
+                                            <!--<span t-esc="'{:,.2f}'.format(sum(invoice.commission or 0 for invoice in docs))"/>--><span t-esc="'{:,.2f}'.format(commission_amt_20)"/>
+                                        </td>
+                                        <td style="border: 2px solid; padding: 8px; text-align: center;"><span t-esc="'{:,.2f}'.format(commission_amt_8)"/>
+                                        </td>
+                                        <td style="border: 2px solid; padding: 8px; text-align: center;"><span t-esc="'{:,.2f}'.format(commission_amt_12)"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row mt-4" t-if="docs[0].system_type=='online'">
+                        <div class="col-12">
+                            <table class="table table-bordered" style="width: 100%; border-collapse: collapse; border: 2px solid; margin: 0 auto;">
+                                <thead>
+                                    <tr style="border: 2px solid;">
+                                        <th style="border: 2px solid; padding: 8px; text-align: center; font-weight: bold;">Total Material Value</th>
+                                        <th style="border: 2px solid; padding: 8px; text-align: center; font-weight: bold;">Commission Amount</th>
+                                        <th style="border: 2px solid; padding: 8px; text-align: center; font-weight: bold;">First Commission Amount</th>
+                                        <th style="border: 2px solid; padding: 8px; text-align: center; font-weight: bold;">Second Commission</th>
+                                    </tr>
+                                    <tr style="border: 2px solid;">
+                                        <th style="border: 2px solid; padding: 8px; text-align: center;"></th>
+                                        <th style="border: 2px solid; padding: 8px; text-align: center;">16%</th>
+                                        <th style="border: 2px solid; padding: 8px; text-align: center;">6.4%</th>
+                                        <th style="border: 2px solid; padding: 8px; text-align: center;">9.6%</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr style="border: 2px solid;">
+                                        <td style="border: 2px solid; padding: 8px; text-align: center;">
+                                            <span t-esc="'{:,.2f}'.format(sum(invoice.amount_untaxed for invoice in docs))"/>
+                                        </td>
+                                        <td style="border: 2px solid; padding: 8px; text-align: center;">
+                                            <!--<span t-esc="'{:,.2f}'.format(sum(invoice.commission or 0 for invoice in docs))"/>--><span t-esc="'{:,.2f}'.format(commission_amt_16)"/>
+                                        </td>
+                                        <td style="border: 2px solid; padding: 8px; text-align: center;"><span t-esc="'{:,.2f}'.format(on_commission_amt_8)"/>
+                                        </td>
+                                        <td style="border: 2px solid; padding: 8px; text-align: center;"><span t-esc="'{:,.2f}'.format(on_commission_amt1_8)"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row mt-4" t-if="docs">
+                        <div class="col-12" t-if="docs[0].system_type=='inline'">
+                            <table class="table table-bordered" style="width: 100%; border-collapse: collapse; border: 2px solid; margin: 0 auto;">
+                                <thead>
+                                    <tr style="border: 2px solid;">
+                                        <th style="border: 2px solid; padding: 8px; text-align: center; font-weight: bold;">Deduction</th>
+                                        <th style="border: 2px solid; padding: 8px; text-align: center; font-weight: bold;">Percentage</th>
+                                        <th style="border: 2px solid; padding: 8px; text-align: center; font-weight: bold;">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!--<tr style="border: 2px solid;">
+                                        <td style="border: 2px solid; padding: 8px; text-align: center;">Description</td>
+                                        <td style="border: 2px solid; padding: 8px; text-align: center;"></td>
+                                        <td style="border: 2px solid; padding: 8px; text-align: center;"></td>
+                                    </tr>-->
+                                    <tr style="border: 2px solid;">
+                                        <td style="border: 2px solid; padding: 8px; text-align: center;">More than 45 days</td>
+                                        <td style="border: 2px solid; padding: 8px; text-align: center;"><span t-esc="'{:,.2f}'.format(deduction_per_45)"/></td>
+                                        <td style="border: 2px solid; padding: 8px; text-align: center;"><span t-esc="'{:,.2f}'.format(deduction_amt_45)"/></td>
+                                    </tr>
+                                    <tr style="border: 2px solid;">
+                                        <td style="border: 2px solid; padding: 8px; text-align: center;">More than 60 days</td>
+                                        <td style="border: 2px solid; padding: 8px; text-align: center;"><span t-esc="'{:,.2f}'.format(deduction_per_60)"/></td>
+                                        <td style="border: 2px solid; padding: 8px; text-align: center;"><span t-esc="'{:,.2f}'.format(deduction_amt_60)"/></td>
+                                    </tr>
+                                    <tr style="border: 2px solid;">
+                                        <td style="border: 2px solid; padding: 8px; text-align: center;">More than 120 days</td>
+                                        <td style="border: 2px solid; padding: 8px; text-align: center;"><span t-esc="'{:,.2f}'.format(deduction_per_120)"/></td>
+                                        <td style="border: 2px solid; padding: 8px; text-align: center;"><span t-esc="'{:,.2f}'.format(deduction_amt_120)"/></td>
+                                    </tr>
+                                    <tr style="border: 2px solid;">
+                                        <td style="border: 2px solid; padding: 8px; text-align: center; font-weight: bold;">Total</td>
+                                        <td style="border: 2px solid; padding: 8px; text-align: center; font-weight: bold;"><span t-esc="'{:,.2f}'.format(deduction_per_45+deduction_per_60+deduction_per_120)"/></td>
+                                        <td style="border: 2px solid; padding: 8px; text-align: center; font-weight: bold;"><span t-esc="'{:,.2f}'.format(deduction_amt_45+deduction_amt_60+deduction_amt_120)"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-12" t-if="docs[0].system_type=='online'">
+                            <table class="table table-bordered" style="width: 100%; border-collapse: collapse; border: 2px solid; margin: 0 auto;">
+                                <thead>
+                                    <tr style="border: 2px solid;">
+                                        <th style="border: 2px solid; padding: 8px; text-align: center; font-weight: bold;">Deduction</th>
+                                        <th style="border: 2px solid; padding: 8px; text-align: center; font-weight: bold;">Percentage</th>
+                                        <th style="border: 2px solid; padding: 8px; text-align: center; font-weight: bold;">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!--<tr style="border: 2px solid;">
+                                        <td style="border: 2px solid; padding: 8px; text-align: center;">Description</td>
+                                        <td style="border: 2px solid; padding: 8px; text-align: center;"></td>
+                                        <td style="border: 2px solid; padding: 8px; text-align: center;"></td>
+                                    </tr>-->
+                                    <tr style="border: 2px solid;">
+                                        <td style="border: 2px solid; padding: 8px; text-align: center;">More than 21 days</td>
+                                        <td style="border: 2px solid; padding: 8px; text-align: center;"><span t-esc="'{:,.2f}'.format(deduction_per_21_on)"/></td>
+                                        <td style="border: 2px solid; padding: 8px; text-align: center;"><span t-esc="'{:,.2f}'.format(deduction_amt_21_on)"/></td>
+                                    </tr>
+                                    <tr style="border: 2px solid;">
+                                        <td style="border: 2px solid; padding: 8px; text-align: center;">More than 45 days</td>
+                                        <td style="border: 2px solid; padding: 8px; text-align: center;"><span t-esc="'{:,.2f}'.format(deduction_per_45_on)"/></td>
+                                        <td style="border: 2px solid; padding: 8px; text-align: center;"><span t-esc="'{:,.2f}'.format(deduction_amt_45_on)"/></td>
+                                    </tr>
+                                    <tr style="border: 2px solid;">
+                                        <td style="border: 2px solid; padding: 8px; text-align: center;">More than 60 days</td>
+                                        <td style="border: 2px solid; padding: 8px; text-align: center;"><span t-esc="'{:,.2f}'.format(deduction_per_60_on)"/></td>
+                                        <td style="border: 2px solid; padding: 8px; text-align: center;"><span t-esc="'{:,.2f}'.format(deduction_amt_60_on)"/></td>
+                                    </tr>
+                                    <tr style="border: 2px solid;">
+                                        <td style="border: 2px solid; padding: 8px; text-align: center; font-weight: bold;">Total</td>
+                                        <td style="border: 2px solid; padding: 8px; text-align: center; font-weight: bold;"><span t-esc="'{:,.2f}'.format(deduction_per_21_on+deduction_per_45_on+deduction_per_60_on)"/></td>
+                                        <td style="border: 2px solid; padding: 8px; text-align: center; font-weight: bold;"><span t-esc="'{:,.2f}'.format(deduction_amt_21_on+deduction_amt_45_on+deduction_amt_60_on)"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4" t-if="not docs">
+                        <div class="col-12">
+                            <p><strong>No invoices found for this customer.</strong></p>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_commission_report" model="ir.actions.report">
+        <field name="name">Commission Report</field>
+        <field name="model">account.move</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">pipes_project.report_commission_template</field>
+        <field name="print_report_name">'commission_report'</field>
+        <field name="binding_model_id" ref="model_account_move"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

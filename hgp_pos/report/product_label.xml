@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="cvm_barcode_paperformate" model="report.paperformat">
+            <field name="name">Barcode</field>
+            <field name="default" eval="True"/>
+            <field name="format">custom</field>
+            <field name="page_height">25</field>
+            <field name="page_width">106</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">0</field>
+            <field name="margin_bottom">0</field>
+            <field name="margin_left">0</field>
+            <field name="margin_right">0</field>
+            <field name="disable_shrinking" eval="True"/>
+            <field name="dpi">96</field>
+        </record>
+
+
+        <record id="report_product_template_label_3x1" model="ir.actions.report">
+            <field name="name">Product Label 3x1 (PDF)</field>
+            <field name="model">product.template</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">hgp_pos.report_producttemplatelabel3x1</field>
+            <field name="report_file">hgp_pos.report_producttemplatelabel3x1</field>
+            <field name="paperformat_id" ref="hgp_pos.cvm_barcode_paperformate"/>
+            <field name="print_report_name">'Products Labels - %s' % (object.name)</field>
+            <field name="binding_model_id" eval="False"/>
+            <field name="binding_type">report</field>
+        </record>
+
+
+        <template id="report_producttemplatelabel3x1">
+            <t t-call="web.basic_layout">
+                <div class="page">
+                    <t t-set="columns" t-value="3"/>
+                    <t t-set="rows" t-value="1"/>
+                    <t t-call="product.report_productlabel"/>
+                </div>
+            </t>
+        </template>
+
+        <template id="report_productlabel_inherited" inherit_id="product.report_productlabel">
+            <xpath expr="//t[@t-if='columns == 4 and rows == 12']" position="after">
+                <t t-if="columns == 3 and rows == 1">
+                    <t t-set="padding_page" t-value="'padding: 0mm 0mm'"/>
+                    <t t-set="report_to_call" t-value="'3x1'"/>
+                </t>
+            </xpath>
+            <xpath expr="//div[@class='o_label_sheet']" position="attributes">
+                <attribute name="class" add="page"/>
+                <attribute name="t-attf-style">{{ padding_page }}; page-break-before: always;</attribute>
+            </xpath>
+            <xpath expr="//t[@t-elif=&quot;report_to_call == '4x12'&quot;]" position="after">
+                <t t-elif="report_to_call == '3x1'">
+                    <t t-call="hgp_pos.report_simple_label3x1"/>
+                </t>
+            </xpath>
+        </template>
+
+
+        <template id="report_simple_label3x1">
+            <t t-set="barcode_size" t-value="'width:32mm;height:7mm'"/>
+            <t t-set="table_style" t-value="'width:33mm;height:23mm;' + table_style"/>
+            <td t-att-style="make_invisible and 'visibility:hidden;'">
+                <div class="o_label_full" t-att-style="table_style">
+                    <div class="row">
+                        <div class="col-5" style="font-size:8pt">
+                            <b>CV Mart</b>
+                        </div>
+                        <div class="col-7 text-end" style="font-size:8pt">
+                            <t t-if="product.is_product_variant">
+                                <strong class="o_label_price_medium" t-field="product.lst_price"
+                                        t-options="{'widget': 'monetary', 'label_price': True}"/>
+                            </t>
+                            <t t-else="">
+                                <strong class="o_label_price_medium" t-field="product.list_price"
+                                        t-options="{'widget': 'monetary', 'label_price': True}"/>
+                            </t>
+                        </div>
+                    </div>
+                    <div class="mt-1">
+                        <div class="row">
+                            <div class="col-12 text-left">
+                                <div t-out="barcode" style="padding:0" t-options="{'widget': 'barcode', 'symbology': 'auto', 'img_style': barcode_size}"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-0">
+                        <div class="row">
+                            <div class="col-12 text-center text-truncate" style="font-size:7pt">
+                                <b><t t-esc="product.name"/></b>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-1">
+                        <t t-if="product">
+                            <div class="row">
+                                <div class="col-6 text-truncate" style="font-size:7pt">
+                                    <t t-if="str(product).split('.')[1][0:7] == 'product'">
+                                        <t t-esc="','.join(product.product_template_attribute_value_ids.mapped('name'))"/>
+                                    </t>
+                                </div>
+                                <div class="col-6 text-end text-truncate" t-att-title="barcode" style="font-size:7pt">
+                                    <span class="text-center" t-out="barcode"/>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </td>
+        </template>
+    </data>
+</odoo>
