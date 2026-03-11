@@ -143,11 +143,9 @@ class AccountMove(models.Model):
 
         invoice_qtys = self._get_invoice_quantities_by_product(invoice)
 
-        # DB search instead of Python filter (faster on large POs)
-        picking = self.env["stock.picking"].sudo().search([
-            ("id", "in", purchase_order.picking_ids.ids),
-            ("state", "not in", ("done", "cancel")),
-        ], order="id", limit=1)
+        picking = purchase_order.picking_ids.filtered(
+            lambda p: p.state not in ("done", "cancel")
+        )[:1]
 
         if not picking:
             raise UserError(
@@ -155,7 +153,6 @@ class AccountMove(models.Model):
                 % purchase_order.name
             )
 
-        # Disable mail tracking, recomputes & unnecessary side-effects
         perf_ctx = {
             "mail_notrack": True,
             "tracking_disable": True,
@@ -166,14 +163,10 @@ class AccountMove(models.Model):
         if picking.state in ("draft", "waiting"):
             picking.action_confirm()
 
-        # DB search instead of Python filter for active moves
-        active_moves = self.env["stock.move"].sudo().search([
-            ("picking_id", "=", picking.id),
-            ("state", "not in", ("done", "cancel")),
-            ("product_id", "!=", False),
-        ])
+        active_moves = picking.move_ids.filtered(
+            lambda m: m.state not in ("done", "cancel") and m.product_id
+        )
 
-        # Prefetch product data in batch
         active_moves.mapped('product_id.uom_id')
         active_moves.mapped('product_uom')
 
@@ -184,7 +177,6 @@ class AccountMove(models.Model):
             rounding = move.product_uom.rounding
             if float_is_zero(inv_qty, precision_rounding=rounding):
                 continue
-            # Skip UoM conversion if same UoM
             if move.product_id.uom_id == move.product_uom:
                 move.quantity = inv_qty
             else:
@@ -198,7 +190,6 @@ class AccountMove(models.Model):
                 _("Invoice has no product quantities matching the receipt. Check the invoice and receipt lines.")
             )
 
-        # Batch write picked flag in one query
         moves_to_update.write({"picked": True})
 
         res = picking.with_context(
@@ -208,6 +199,7 @@ class AccountMove(models.Model):
         )._pre_action_done_hook()
         if res is not True:
             return _response("warning", _("Receipt needs additional steps."), action=res)
+
         picking.with_context(cancel_backorder=False, **perf_ctx)._action_done()
 
         return _response("success", _("Purchase order receipt validated successfully."))
