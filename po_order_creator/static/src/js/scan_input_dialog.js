@@ -39,15 +39,15 @@ export class ScanInputDialog extends Component {
         this.state.busy = true;
         try {
             const result = await this.orm.call("account.move", "action_confirm", [value]);
-            const message = result?.message || value;
+            const message = result?.message || "Done";
             const level = result?.level || "success";
             this.notification.add(message, { type: level });
+            this.state.value = "";
 
             const action = result?.action;
             if (action && typeof action === "object" && typeof action.type === "string") {
                 await this.action.doAction(action);
             }
-            this.state.value = "";
         } catch (e) {
             const message = e?.data?.message || e?.message || "Scan failed";
             this.notification.add(message, { type: "danger" });

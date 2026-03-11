@@ -100,12 +100,17 @@ class AccountMove(models.Model):
         product_lines = invoice.invoice_line_ids.filtered(
             lambda l: l.display_type == "product" and l.product_id
         )
+        product_lines.mapped('product_id.uom_id')
+        product_lines.mapped('product_uom_id')
         qtys = {}
         for line in product_lines:
             pid = line.product_id.id
-            qty = line.product_uom_id._compute_quantity(
-                line.quantity, line.product_id.uom_id, round=False
-            )
+            if line.product_uom_id == line.product_id.uom_id:
+                qty = line.quantity
+            else:
+                qty = line.product_uom_id._compute_quantity(
+                    line.quantity, line.product_id.uom_id, round=False
+                )
             qtys[pid] = qtys.get(pid, 0) + qty
         return qtys
 
@@ -138,53 +143,71 @@ class AccountMove(models.Model):
 
         invoice_qtys = self._get_invoice_quantities_by_product(invoice)
 
-        open_pickings = purchase_order.picking_ids.filtered(
-            lambda p: p.state not in ("done", "cancel")
-        ).sorted(key=lambda p: (p.id,))
+        # DB search instead of Python filter (faster on large POs)
+        picking = self.env["stock.picking"].sudo().search([
+            ("id", "in", purchase_order.picking_ids.ids),
+            ("state", "not in", ("done", "cancel")),
+        ], order="id", limit=1)
 
-        if not open_pickings:
+        if not picking:
             raise UserError(
                 _("No open receipt found for Purchase Order %s. Create or confirm the receipt first.")
                 % purchase_order.name
             )
 
-        # Disable mail tracking & unnecessary recomputes for the entire flow
-        picking = open_pickings[0].with_context(
-            mail_notrack=True,
-            tracking_disable=True,
-            mail_create_nolog=True,
-        )
+        # Disable mail tracking, recomputes & unnecessary side-effects
+        perf_ctx = {
+            "mail_notrack": True,
+            "tracking_disable": True,
+            "mail_create_nolog": True,
+            "mail_activity_automation_skip": True,
+        }
+        picking = picking.with_context(**perf_ctx)
         if picking.state in ("draft", "waiting"):
             picking.action_confirm()
-            if picking.state == "confirmed":
-                picking.action_assign()
 
-        active_moves = picking.move_ids.filtered(lambda m: m.state not in ("done", "cancel") and m.product_id)
-        has_qty = False
+        # DB search instead of Python filter for active moves
+        active_moves = self.env["stock.move"].sudo().search([
+            ("picking_id", "=", picking.id),
+            ("state", "not in", ("done", "cancel")),
+            ("product_id", "!=", False),
+        ])
+
+        # Prefetch product data in batch
+        active_moves.mapped('product_id.uom_id')
+        active_moves.mapped('product_uom')
+
+        moves_to_update = self.env["stock.move"]
         for move in active_moves:
-            inv_qty = invoice_qtys.get(move.product_id.id, 0)
+            pid = move.product_id.id
+            inv_qty = invoice_qtys.get(pid, 0)
             rounding = move.product_uom.rounding
             if float_is_zero(inv_qty, precision_rounding=rounding):
                 continue
-            qty_done = move.product_id.uom_id._compute_quantity(
-                inv_qty, move.product_uom, round=False
-            )
-            move.quantity = qty_done
-            move.picked = True
-            has_qty = True
+            # Skip UoM conversion if same UoM
+            if move.product_id.uom_id == move.product_uom:
+                move.quantity = inv_qty
+            else:
+                move.quantity = move.product_id.uom_id._compute_quantity(
+                    inv_qty, move.product_uom, round=False
+                )
+            moves_to_update |= move
 
-        if not has_qty:
+        if not moves_to_update:
             raise UserError(
                 _("Invoice has no product quantities matching the receipt. Check the invoice and receipt lines.")
             )
 
-        picking.message_subscribe([self.env.user.partner_id.id])
+        # Batch write picked flag in one query
+        moves_to_update.write({"picked": True})
+
         res = picking.with_context(
             skip_backorder=True,
             skip_sanity_check=True,
+            **perf_ctx,
         )._pre_action_done_hook()
         if res is not True:
             return _response("warning", _("Receipt needs additional steps."), action=res)
-        picking.with_context(cancel_backorder=False)._action_done()
+        picking.with_context(cancel_backorder=False, **perf_ctx)._action_done()
 
         return _response("success", _("Purchase order receipt validated successfully."))
